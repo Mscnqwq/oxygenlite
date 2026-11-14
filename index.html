@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<meta name="color-scheme" content="dark">
+<title>OxygenLite — Runtime Enhancement Framework</title>
+<meta name="description" content="Stable bypass, all Minecraft versions, native anti-cheat evasion, and mainstream server compatibility.">
+<link rel="icon" href="./Oxygen.png">
+<style>
+:root {
+  color-scheme: dark;
+  --brand-h: 158; --brand-s: 64%; --brand-l: 52%;
+  --brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+  --brand-bright: hsl(var(--brand-h) var(--brand-s) 64%);
+  --brand-a12: hsl(var(--brand-h) var(--brand-s) var(--brand-l) / .12);
+  --brand-a24: hsl(var(--brand-h) var(--brand-s) var(--brand-l) / .24);
+  --brand-a40: hsl(var(--brand-h) var(--brand-s) var(--brand-l) / .4);
+  --canvas: #0a0c10;
+  --material-thick: rgba(14, 17, 22, .86);
+  --material-regular: rgba(20, 24, 31, .62);
+  --material-thin: rgba(255, 255, 255, .045);
+  --blur-thick: 40px; --blur-regular: 24px; --blur-thin: 14px;
+  --edge-highlight: rgba(255, 255, 255, .1);
+  --separator: rgba(255, 255, 255, .08);
+  --separator-strong: rgba(255, 255, 255, .14);
+  --label: rgba(255, 255, 255, .96);
+  --label-secondary: rgba(235, 240, 248, .68);
+  --label-tertiary: rgba(235, 240, 248, .44);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, .34), 0 12px 32px rgba(0, 0, 0, .34);
+  --r-xs: 8px; --r-sm: 12px; --r-md: 16px; --r-lg: 22px; --r-xl: 28px; --r-pill: 999px;
+  --sp-1: .25rem; --sp-2: .5rem; --sp-3: .75rem; --sp-4: 1rem;
+  --sp-5: 1.5rem; --sp-6: 2rem; --sp-7: 3rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --page-max: 1120px;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Inter, Roboto, "PingFang SC", "Microsoft YaHei UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --track-display: -.028em; --track-title: -.018em; --track-headline: -.01em;
+  --lead-display: 1.04; --lead-title: 1.14; --lead-headline: 1.3; --lead-body: 1.62;
+  --response-fast: .24s; --response-base: .34s;
+  --ease-standard: cubic-bezier(.32, .72, 0, 1);
+  --header-h: 60px;
+  --z-nav: 100;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + var(--sp-6)); }
+body {
+  margin: 0; min-height: 100dvh; background: var(--canvas); color: var(--label-secondary);
+  font-family: var(--font-ui); font-size: clamp(.9375rem, .9rem + .2vw, 1.0625rem);
+  line-height: var(--lead-body); letter-spacing: 0;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+::selection { background: var(--brand-a40); color: #fff; }
+img, svg { display: block; max-width: 100%; }
+button { background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--brand-bright); outline-offset: 3px; border-radius: var(--r-xs); }
+h1, h2, h3, h4 { margin: 0; color: var(--label); font-weight: 600; text-wrap: balance; }
+p { margin: 0; }
+.t-display { font-size: clamp(2.5rem, 1.6rem + 4.2vw, 4.5rem); line-height: var(--lead-display); letter-spacing: var(--track-display); font-weight: 640; }
+.t-title { font-size: clamp(1.875rem, 1.4rem + 2.1vw, 2.75rem); line-height: var(--lead-title); letter-spacing: var(--track-title); font-weight: 620; }
+.t-headline { font-size: clamp(1.0625rem, 1rem + .4vw, 1.25rem); line-height: var(--lead-headline); letter-spacing: var(--track-headline); font-weight: 600; }
+.t-body-lg { font-size: clamp(1.0625rem, 1rem + .5vw, 1.3125rem); line-height: 1.5; color: var(--label-secondary); }
+.t-caption { font-size: .8125rem; line-height: 1.45; color: var(--label-tertiary); }
+.measure { max-width: 68ch; }
+.page { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--gutter); }
+.section { padding-block: clamp(4rem, 9vw, 7.5rem); }
+.section-head { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+.material {
+  position: relative; background: var(--material-regular);
+  backdrop-filter: blur(var(--blur-regular)) saturate(170%);
+  -webkit-backdrop-filter: blur(var(--blur-regular)) saturate(170%);
+  border: 1px solid var(--separator); border-radius: var(--r-lg); box-shadow: var(--shadow-md);
+}
+.material::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding-top: 1px;
+  background: linear-gradient(to bottom, var(--edge-highlight), transparent 42%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+.reveal { opacity: 0; transition: opacity .8s var(--ease-standard); }
+.reveal[data-revealed="true"] { opacity: 1; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  border-radius: var(--r-pill); font-weight: 590; letter-spacing: -.006em;
+  white-space: nowrap; transition: background .2s, border-color .2s, box-shadow .2s;
+}
+.btn--md { padding: .6rem 1.15rem; font-size: .9375rem; }
+.btn--lg { padding: .85rem 1.7rem; font-size: 1.0625rem; }
+.btn--primary { background: var(--brand); color: #04140d; box-shadow: 0 1px 2px #0000004d, 0 8px 24px var(--brand-a24); }
+.btn--primary:hover { background: var(--brand-bright); box-shadow: 0 1px 2px #0000004d, 0 10px 32px var(--brand-a40); }
+.btn--secondary { background: var(--material-thin); color: var(--label); border: 1px solid var(--separator-strong); backdrop-filter: blur(var(--blur-thin)); }
+.btn--secondary:hover { background: #ffffff17; border-color: #fff3; }
+.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: var(--canvas); }
+.backdrop__media {
+  position: absolute; top: 0; left: 0; width: 50%; height: 50%; object-fit: cover;
+  transform-origin: 0 0; transform: translate(-4vw, -4vh) scale(2.16);
+  filter: blur(11px) saturate(.92) brightness(.88);
+  background: radial-gradient(circle at 30% 30%, #1d4ed8, #0a0c10 60%);
+}
+.backdrop__scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, #06080bbd, #06080b99 30%, #06080ba3, #06080bcc),
+              radial-gradient(150% 95% at 50% 0%, transparent 38%, rgba(6,8,11,.36) 100%);
+}
+.backdrop__tint {
+  position: absolute; inset: 0;
+  background: radial-gradient(70% 55% at 12% 8%, var(--brand-a12), transparent 68%),
+              radial-gradient(60% 50% at 88% 92%, rgba(63,125,251,.1), transparent 70%);
+}
+.shell { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100dvh; }
+main { flex: 1; }
+.header {
+  position: sticky; top: 0; z-index: var(--z-nav); background: transparent;
+  transition: background-color var(--response-base); border-bottom: 1px solid transparent;
+}
+.header[data-scrolled="true"] {
+  background: var(--material-thick);
+  backdrop-filter: blur(var(--blur-thick)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-thick)) saturate(180%);
+  border-bottom-color: var(--separator);
+}
+.header__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5); height: var(--header-h); }
+.brand { display: inline-flex; align-items: center; gap: .55rem; flex-shrink: 0; }
+.brand__mark { width: 28px; height: 28px; border-radius: 7px; object-fit: contain; background: var(--canvas); }
+.brand__name { color: var(--label); font-size: 1.0625rem; font-weight: 620; letter-spacing: -.014em; }
+.nav { display: flex; align-items: center; gap: .35rem; margin-inline: auto; }
+.nav__link { padding: .4rem .75rem; border-radius: var(--r-xs); color: var(--label-secondary); font-size: .9375rem; font-weight: 500; transition: color .2s; }
+.nav__link:hover { color: var(--label); }
+.header__actions { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
+.lang {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .65rem;
+  border-radius: var(--r-pill); border: 1px solid var(--separator); background: var(--material-thin);
+  color: var(--label-secondary); font-size: .8125rem; font-weight: 590; cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.lang:hover { color: var(--label); border-color: var(--separator-strong); }
+.lang__globe { width: 15px; height: 15px; opacity: .8; }
+.header__toggle { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 34px; height: 34px; padding: 0 8px; border-radius: var(--r-xs); }
+.header__bar { display: block; height: 1.5px; width: 100%; background: var(--label); border-radius: 1px; transition: transform .2s; }
+.header__bar[data-open="true"]:first-child { transform: translateY(3.25px) rotate(45deg); }
+.header__bar[data-open="true"]:last-child { transform: translateY(-3.25px) rotate(-45deg); }
+.sheet { display: none; border-top: 1px solid var(--separator); background: var(--material-thick); backdrop-filter: blur(var(--blur-thick)); }
+.sheet__nav { display: flex; flex-direction: column; padding: var(--sp-2) var(--gutter) var(--sp-4); }
+.sheet__link { padding: .8rem 0; border-bottom: 1px solid var(--separator); color: var(--label-secondary); font-size: 1rem; }
+@media (max-width: 900px) {
+  .nav, .header__cta, .lang--desktop { display: none; }
+  .header__toggle, .sheet { display: flex; }
+  .sheet { flex-direction: column; }
+}
+.hero { padding-block: clamp(4.5rem, 11vw, 9rem) clamp(3rem, 7vw, 5.5rem); }
+.hero__inner { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-5); }
+.hero__title { max-width: 18ch; }
+.hero__subtitle { max-width: 58ch; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-2); }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: var(--sp-2); align-self: flex-start;
+  padding: .3rem .7rem; border-radius: var(--r-pill); background: var(--brand-a12);
+  border: 1px solid var(--brand-a24); color: var(--brand-bright);
+  font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+}
+.stats {
+  display: flex; flex-wrap: wrap; gap: clamp(1.75rem, 5vw, 3.5rem);
+  margin: var(--sp-5) 0 0; padding-top: var(--sp-5); border-top: 1px solid var(--separator);
+  width: 100%; max-width: 36rem;
+}
+.stats__item { display: flex; flex-direction: column; gap: .15rem; }
+.stats__value { color: var(--label); font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); font-weight: 640; letter-spacing: var(--track-title); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stats__label { margin: 0; font-size: .8125rem; color: var(--label-tertiary); }
+
+/* ===== 特性卡片 ===== */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: var(--sp-4); }
+.grid > * { display: flex; }
+.grid > * > * { flex: 1; }
+.card {
+  position: relative; display: flex; flex-direction: column; gap: .7rem;
+  padding: var(--sp-5); border-radius: var(--r-lg); overflow: hidden;
+  isolation: isolate;
+  transition: border-color var(--response-base);
+}
+.card:hover { border-color: var(--separator-strong); }
+.card__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; margin-bottom: .2rem; border-radius: var(--r-sm);
+  background: var(--brand-a12); border: 1px solid var(--brand-a24); color: var(--brand-bright);
+}
+.card__icon svg { width: 20px; height: 20px; }
+.card__title { color: var(--label); }
+.card__body { font-size: .9375rem; line-height: 1.6; color: var(--label-secondary); }
+
+/* ===== 鼠标跟随光晕 ===== */
+.card__glow {
+  position: absolute; inset: -1px; z-index: -1; border-radius: inherit;
+  background: radial-gradient(
+    22rem circle at var(--px, 50%) var(--py, 50%),
+    hsl(var(--brand-h) var(--brand-s) var(--brand-l) / .13),
+    transparent 62%
+  );
+  opacity: var(--glow, 0);
+  transition: opacity var(--response-base) var(--ease-standard);
+  pointer-events: none;
+}
+
+/* ===== 定价卡片 ===== */
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--sp-4); max-width: 46rem; }
+.plans > * { display: flex; }
+.plans > * > * { flex: 1; }
+.plan {
+  position: relative; display: flex; flex-direction: column; gap: .55rem;
+  padding: var(--sp-6); border-radius: var(--r-xl);
+  overflow: hidden; isolation: isolate;
+  transition: border-color var(--response-base);
+}
+.plan:hover { border-color: var(--separator-strong); }
+.plan--featured { border-color: var(--brand-a40); box-shadow: var(--shadow-md), 0 0 0 1px var(--brand-a12), 0 24px 64px -32px var(--brand-a40); }
+.plan--featured:hover { border-color: var(--brand-a40); }
+.plan__badge {
+  position: absolute; top: var(--sp-5); right: var(--sp-5); z-index: 1;
+  padding: .22rem .6rem; border-radius: var(--r-pill);
+  background: var(--brand); color: #04140d; font-size: .6875rem; font-weight: 700;
+}
+.plan__name { color: var(--label-secondary); font-size: .9375rem; font-weight: 590; }
+.plan__price { display: flex; align-items: baseline; gap: .45rem; margin-block: .1rem .2rem; }
+.plan__amount { color: var(--label); font-size: clamp(2.25rem, 1.9rem + 1.4vw, 3rem); font-weight: 650; letter-spacing: var(--track-display); line-height: 1; font-variant-numeric: tabular-nums; }
+.plan__period { color: var(--label-tertiary); font-size: .875rem; }
+.plan__body { flex: 1; font-size: .9375rem; line-height: 1.6; color: var(--label-secondary); }
+.plan__cta { margin-top: var(--sp-4); width: 100%; }
+.plan .card__glow {
+  background: radial-gradient(
+    26rem circle at var(--px, 50%) var(--py, 50%),
+    hsl(var(--brand-h) var(--brand-s) var(--brand-l) / .16),
+    transparent 62%
+  );
+}
+
+.footer { margin-top: clamp(4rem, 8vw, 7rem); padding-top: var(--sp-7); background: linear-gradient(to bottom, transparent, rgba(255,255,255,.018)); border-top: 1px solid var(--separator); }
+.footer__inner { display: grid; grid-template-columns: 1.7fr 1fr 1fr; gap: var(--sp-6); padding-bottom: var(--sp-7); }
+.footer__brand { display: flex; flex-direction: column; gap: .6rem; max-width: 22rem; }
+.footer__mark { border-radius: 6px; }
+.footer__name { color: var(--label); font-weight: 620; }
+.footer__col { display: flex; flex-direction: column; gap: .55rem; }
+.footer__heading { font-size: .75rem; font-weight: 640; letter-spacing: .07em; text-transform: uppercase; color: var(--label-tertiary); margin-bottom: .2rem; }
+.footer__link { color: var(--label-secondary); font-size: .9375rem; transition: color .2s; }
+.footer__link:hover { color: var(--label); }
+.footer__base { display: flex; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; padding-block: var(--sp-4) var(--sp-6); border-top: 1px solid var(--separator); }
+@media (max-width: 900px) { .footer__inner { grid-template-columns: 1fr 1fr; } .footer__brand { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transition: none !important; }
+  .card__glow { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__media"></div>
+  <div class="backdrop__scrim"></div>
+  <div class="backdrop__tint"></div>
+</div>
+
+<div class="shell">
+  <header class="header" id="siteHeader">
+    <div class="header__inner page">
+      <a class="brand" href="index.html">
+        <img class="brand__mark" src="./Oxygen.png" alt="OxygenLite" width="28" height="28">
+        <span class="brand__name">OxygenLite</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="index.html#features" class="nav__link" data-i18n="nav_features">Features</a>
+        <a href="index.html#pricing" class="nav__link" data-i18n="nav_pricing">Pricing</a>
+        <a href="buy.html" class="nav__link" data-i18n="nav_buy">Where to Buy</a>
+        <a href="download.html" class="nav__link" data-i18n="nav_download">Download</a>
+        <a href="community.html" class="nav__link" data-i18n="nav_community">Community</a>
+      </nav>
+      <div class="header__actions">
+        <button class="lang lang--desktop" type="button" id="langToggle">
+          <svg class="lang__globe" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="10" cy="10" r="7.25" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <ellipse cx="10" cy="10" rx="3.1" ry="7.25" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M3 7.6h14M3 12.4h14" stroke="currentColor" stroke-width="1.4" fill="none"/>
+          </svg>
+          <span id="langLabel">中文</span>
+        </button>
+        <a href="buy.html" class="btn btn--primary btn--md header__cta" data-i18n="header_buy">Buy Now</a>
+        <button class="header__toggle" type="button" aria-label="Menu" aria-expanded="false" id="menuToggle">
+          <span class="header__bar" data-open="false"></span>
+          <span class="header__bar" data-open="false"></span>
+        </button>
+      </div>
+    </div>
+    <div class="sheet" id="mobileSheet" style="display: none;">
+      <nav class="sheet__nav">
+        <a href="index.html#features" class="sheet__link" data-i18n="nav_features">Features</a>
+        <a href="index.html#pricing" class="sheet__link" data-i18n="nav_pricing">Pricing</a>
+        <a href="buy.html" class="sheet__link" data-i18n="nav_buy">Where to Buy</a>
+        <a href="download.html" class="sheet__link" data-i18n="nav_download">Download</a>
+        <a href="community.html" class="sheet__link" data-i18n="nav_community">Community</a>
+        <button class="sheet__link" type="button" id="langToggleMobile" style="text-align:left; border:none; color:var(--brand-bright);">中文</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="page hero__inner">
+        <span class="reveal eyebrow" data-revealed="true" data-i18n="hero_badge">Runtime Enhancement Framework</span>
+        <div class="reveal" data-revealed="true">
+          <h1 class="t-display hero__title" data-i18n="hero_title">Stable bypass. Every version. One client.</h1>
+        </div>
+        <div class="reveal" data-revealed="true">
+          <p class="t-body-lg hero__subtitle" data-i18n="hero_subtitle">
+            OxygenLite bypasses native anti-cheat systems, works on all Minecraft versions, and stays compatible with the most popular servers — with a UI that actually looks good.
+          </p>
+        </div>
+        <div class="reveal" data-revealed="true">
+          <div class="hero__actions">
+            <a href="buy.html" class="btn btn--primary btn--lg" data-i18n="hero_cta_primary">View Pricing</a>
+            <a href="download.html" class="btn btn--secondary btn--lg" data-i18n="hero_cta_secondary">Download Latest</a>
+          </div>
+        </div>
+        <div class="reveal" data-revealed="true">
+          <dl class="stats">
+            <div class="stats__item"><dt class="stats__value" data-i18n="stat1_value">All</dt><dd class="stats__label" data-i18n="stat1_label">Minecraft Versions</dd></div>
+            <div class="stats__item"><dt class="stats__value" data-i18n="stat2_value">Native</dt><dd class="stats__label" data-i18n="stat2_label">Anti-Cheat Bypass</dd></div>
+            <div class="stats__item"><dt class="stats__value" data-i18n="stat3_value">Stable</dt><dd class="stats__label" data-i18n="stat3_label">Bypass</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="page">
+        <div class="reveal section-head" data-revealed="true">
+          <span class="eyebrow" data-i18n="features_badge">Features</span>
+          <h2 class="t-title" data-i18n="features_title">Built for stability. Designed for looks.</h2>
+          <p class="t-body-lg measure" data-i18n="features_subtitle">Everything you need, nothing you don't.</p>
+        </div>
+
+        <div class="grid">
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_stable_title">Stable Bypass</h3>
+            <p class="card__body" data-i18n="feat_stable_body">Consistent evasion without crashes or detection spikes. Built to stay under the radar.</p>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_versions_title">All Versions</h3>
+            <p class="card__body" data-i18n="feat_versions_body">From 1.8.9 to 1.21.x — every Minecraft version is supported out of the box.</p>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_native_title">Bypass Native Anti-Cheat</h3>
+            <p class="card__body" data-i18n="feat_native_body">Bypasses native anti-cheat systems, keeping your session undetected.</p>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_servers_title">Mainstream Servers</h3>
+            <p class="card__body" data-i18n="feat_servers_body">Tested and working on the most popular servers. No kick, no ban.</p>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M9 21V9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_ui_title">Beautiful UI</h3>
+            <p class="card__body" data-i18n="feat_ui_body">A modern, clean interface that doesn't feel like it was made in 2013.</p>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="card material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="card__icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <h3 class="t-headline card__title" data-i18n="feat_value_title">Low Price, High Quality</h3>
+            <p class="card__body" data-i18n="feat_value_body">All features at a low price. No hidden tiers, no upsells.</p>
+          </article></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="section">
+      <div class="page">
+        <div class="reveal section-head" data-revealed="true">
+          <span class="eyebrow" data-i18n="pricing_badge">Pricing</span>
+          <h2 class="t-title" data-i18n="pricing_title">Simple pricing. Full access.</h2>
+          <p class="t-body-lg measure" data-i18n="pricing_subtitle">Both plans include every feature and all future updates.</p>
+        </div>
+
+        <div class="plans">
+          <div class="reveal" data-revealed="true"><article class="plan material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <h3 class="plan__name" data-i18n="plan_monthly_name">Monthly</h3>
+            <p class="plan__price"><span class="plan__amount" data-i18n="plan_monthly_price">¥20</span><span class="plan__period" data-i18n="plan_monthly_period">/ month</span></p>
+            <p class="plan__body" data-i18n="plan_monthly_body">Cancel anytime. Perfect for short-term use or evaluation.</p>
+            <a href="buy.html" class="btn btn--secondary btn--lg plan__cta" data-i18n="plan_monthly_cta">Subscribe Monthly</a>
+          </article></div>
+
+          <div class="reveal" data-revealed="true"><article class="plan plan--featured material">
+            <span class="card__glow" aria-hidden="true"></span>
+            <span class="plan__badge" data-i18n="plan_lifetime_badge">Best Value</span>
+            <h3 class="plan__name" data-i18n="plan_lifetime_name">Lifetime</h3>
+            <p class="plan__price"><span class="plan__amount" data-i18n="plan_lifetime_price">¥80</span><span class="plan__period" data-i18n="plan_lifetime_period">/ one-time</span></p>
+            <p class="plan__body" data-i18n="plan_lifetime_body">Pay once, keep forever. Includes every future release.</p>
+            <a href="buy.html" class="btn btn--primary btn--lg plan__cta" data-i18n="plan_lifetime_cta">Get Lifetime Access</a>
+          </article></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner page">
+      <div class="footer__brand">
+        <div style="display:flex;align-items:center;gap:.55rem;">
+          <img src="./Oxygen.png" alt="" width="24" height="24" class="footer__mark">
+          <span class="footer__name">OxygenLite</span>
+        </div>
+        <p class="t-caption" data-i18n="footer_tagline">Runtime enhancement framework.</p>
+      </div>
+      <nav class="footer__col">
+        <h3 class="footer__heading" data-i18n="footer_product">Product</h3>
+        <a href="index.html#features" class="footer__link" data-i18n="nav_features">Features</a>
+        <a href="index.html#pricing" class="footer__link" data-i18n="nav_pricing">Pricing</a>
+        <a href="buy.html" class="footer__link" data-i18n="nav_buy">Where to Buy</a>
+      </nav>
+      <nav class="footer__col">
+        <h3 class="footer__heading" data-i18n="footer_resources">Resources</h3>
+        <a href="download.html" class="footer__link" data-i18n="nav_download">Download</a>
+        <a href="community.html" class="footer__link" data-i18n="nav_community">Community</a>
+      </nav>
+    </div>
+    <div class="footer__base page">
+      <p class="t-caption" data-i18n="footer_copy">© 2026 OxygenLite. All rights reserved.</p>
+      <p class="t-caption" data-i18n="footer_disclaimer">Not affiliated with Mojang Studios or Microsoft.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+const i18n = {
+  en: {
+    nav_features: "Features", nav_pricing: "Pricing", nav_buy: "Where to Buy",
+    nav_download: "Download", nav_community: "Community",
+    header_buy: "Buy Now",
+    hero_badge: "Runtime Enhancement Framework",
+    hero_title: "Stable bypass. Every version. One client.",
+    hero_subtitle: "OxygenLite bypasses native anti-cheat systems, works on all Minecraft versions, and stays compatible with the most popular servers — with a UI that actually looks good.",
+    hero_cta_primary: "View Pricing", hero_cta_secondary: "Download Latest",
+    stat1_value: "All", stat1_label: "Minecraft Versions",
+    stat2_value: "Native", stat2_label: "Anti-Cheat Bypass",
+    stat3_value: "Stable", stat3_label: "Bypass",
+    features_badge: "Features",
+    features_title: "Built for stability. Designed for looks.",
+    features_subtitle: "Everything you need, nothing you don't.",
+    feat_stable_title: "Stable Bypass",
+    feat_stable_body: "Consistent evasion without crashes or detection spikes. Built to stay under the radar.",
+    feat_versions_title: "All Versions",
+    feat_versions_body: "From 1.8.9 to 1.21.x — every Minecraft version is supported out of the box.",
+    feat_native_title: "Bypass Native Anti-Cheat",
+    feat_native_body: "Bypasses native anti-cheat systems, keeping your session undetected.",
+    feat_servers_title: "Mainstream Servers",
+    feat_servers_body: "Tested and working on the most popular servers. No kick, no ban.",
+    feat_ui_title: "Beautiful UI",
+    feat_ui_body: "A modern, clean interface that doesn't feel like it was made in 2013.",
+    feat_value_title: "Low Price, High Quality",
+    feat_value_body: "All features at a low price. No hidden tiers, no upsells.",
+    pricing_badge: "Pricing",
+    pricing_title: "Simple pricing. Full access.",
+    pricing_subtitle: "Both plans include every feature and all future updates.",
+    plan_monthly_name: "Monthly", plan_monthly_price: "¥20", plan_monthly_period: "/ month",
+    plan_monthly_body: "Cancel anytime. Perfect for short-term use or evaluation.",
+    plan_monthly_cta: "Subscribe Monthly",
+    plan_lifetime_badge: "Best Value", plan_lifetime_name: "Lifetime",
+    plan_lifetime_price: "¥80", plan_lifetime_period: "/ one-time",
+    plan_lifetime_body: "Pay once, keep forever. Includes every future release.",
+    plan_lifetime_cta: "Get Lifetime Access",
+    footer_tagline: "Runtime enhancement framework.",
+    footer_product: "Product", footer_resources: "Resources",
+    footer_copy: "© 2026 OxygenLite. All rights reserved.",
+    footer_disclaimer: "Not affiliated with Mojang Studios or Microsoft."
+  },
+  zh: {
+    nav_features: "功能", nav_pricing: "定价", nav_buy: "购买渠道",
+    nav_download: "下载", nav_community: "社区",
+    header_buy: "立即购买",
+    hero_badge: "运行时增强框架",
+    hero_title: "稳定绕过。全版本。一个客户端。",
+    hero_subtitle: "OxygenLite 绕过 Native 反作弊系统，支持所有 Minecraft 版本，兼容主流热门服务器——而且界面是真的好看。",
+    hero_cta_primary: "查看定价", hero_cta_secondary: "下载最新版",
+    stat1_value: "全版本", stat1_label: "Minecraft 支持",
+    stat2_value: "Native", stat2_label: "反作弊绕过",
+    stat3_value: "稳定", stat3_label: "绕过",
+    features_badge: "特点",
+    features_title: "为稳定而生，为好看而设计。",
+    features_subtitle: "你需要的全都有，不需要的一个没有。",
+    feat_stable_title: "稳定绕过",
+    feat_stable_body: "持续稳定规避检测，不崩溃、不触发异常。专为低调运行而打造。",
+    feat_versions_title: "支持所有版本",
+    feat_versions_body: "从 1.8.9 到 1.21.x——所有 Minecraft 版本开箱即用。",
+    feat_native_title: "绕过 Native 反作弊",
+    feat_native_body: "针对 Native 反作弊系统进行绕过，保持会话不被检测。",
+    feat_servers_title: "主流热门服务器",
+    feat_servers_body: "在热门服务器上实测可用。不踢出，不封禁。",
+    feat_ui_title: "UI 美丽",
+    feat_ui_body: "现代化、干净利落的界面，不像 2013 年的产物。",
+    feat_value_title: "物美价廉",
+    feat_value_body: "全功能，低价格。没有隐藏等级，没有二次收费。",
+    pricing_badge: "定价",
+    pricing_title: "定价简单。全部功能。",
+    pricing_subtitle: "两档方案均包含全部功能与后续所有更新。",
+    plan_monthly_name: "月租", plan_monthly_price: "¥20", plan_monthly_period: "/ 月",
+    plan_monthly_body: "随时取消，适合短期使用或体验。",
+    plan_monthly_cta: "订阅月租",
+    plan_lifetime_badge: "最划算", plan_lifetime_name: "永久",
+    plan_lifetime_price: "¥80", plan_lifetime_period: "/ 一次性",
+    plan_lifetime_body: "一次付费，永久持有，包含后续所有版本更新。",
+    plan_lifetime_cta: "获取永久访问",
+    footer_tagline: "运行时增强框架。",
+    footer_product: "产品", footer_resources: "资源",
+    footer_copy: "© 2026 OxygenLite. 版权所有。",
+    footer_disclaimer: "与 Mojang Studios 或 Microsoft 无关。"
+  }
+};
+
+let currentLang = "en";
+function setLang(lang) {
+  currentLang = lang;
+  const dict = i18n[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+  const label = lang === "en" ? "中文" : "EN";
+  document.getElementById("langLabel").textContent = label;
+  document.getElementById("langToggleMobile").textContent = label;
+  document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+}
+document.getElementById("langToggle").addEventListener("click", () => setLang(currentLang === "en" ? "zh" : "en"));
+document.getElementById("langToggleMobile").addEventListener("click", () => setLang(currentLang === "en" ? "zh" : "en"));
+setLang("en");
+
+const header = document.getElementById("siteHeader");
+const onScroll = () => { header.dataset.scrolled = window.scrollY > 10 ? "true" : "false"; };
+onScroll();
+window.addEventListener("scroll", onScroll, { passive: true });
+
+const toggle = document.getElementById("menuToggle");
+const sheet = document.getElementById("mobileSheet");
+toggle.addEventListener("click", () => {
+  const open = sheet.style.display === "none" || sheet.style.display === "";
+  sheet.style.display = open ? "flex" : "none";
+  toggle.setAttribute("aria-expanded", String(open));
+  toggle.querySelectorAll(".header__bar").forEach(b => b.dataset.open = String(open));
+});
+sheet.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+  sheet.style.display = "none";
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.querySelectorAll(".header__bar").forEach(b => b.dataset.open = "false");
+}));
+
+const reveals = document.querySelectorAll(".reveal");
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.dataset.revealed = "true"; io.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
+  reveals.forEach(el => io.observe(el));
+} else { reveals.forEach(el => el.dataset.revealed = "true"); }
+
+document.querySelectorAll(".card, .plan").forEach(card => {
+  card.addEventListener("pointermove", e => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty("--px", `${e.clientX - rect.left}px`);
+    card.style.setProperty("--py", `${e.clientY - rect.top}px`);
+    card.style.setProperty("--glow", "1");
+  });
+  card.addEventListener("pointerleave", () => card.style.setProperty("--glow", "0"));
+});
+</script>
+</body>
+</html>
